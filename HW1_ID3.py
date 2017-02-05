@@ -40,14 +40,11 @@ def entropy(example, classification_attribute):
 
 def seperateBranchesOfAttribute(example, attribute):
     branchOfAttributes = {}
-    # numberOfUniqueValues = len(originalData[attribute].unique())
-    # for index in range (numberOfUniqueValues):
-    numberOfUniqueValues = originalData[attribute].unique()
-    for index in numberOfUniqueValues:
+    numberOfUniqueValues = len(originalData[attribute].unique())
+    for index in range(numberOfUniqueValues):
         branchOfAttributes[index] = example.loc[example[attribute] == index]
         branchOfAttributes[index] = branchOfAttributes[index].drop(labels=attribute, axis=1)
         branchOfAttributes[index] = branchOfAttributes[index].reset_index(drop=True)
-        # print(branchOfAttributes[index])
     return branchOfAttributes
 
 #-----------------------prepares initial data frame---------------------------------------------------------------------
@@ -93,7 +90,7 @@ def prepareData():
     inverseKeys = {'Size':sizeKeys, 'Occupied':occKeys, 'Price':priceKeys, 'Music':musicKeys, 'Location':locKeys, 'VIP':vipKeys, 'Favorite Beer':beerKeys}
 
 
-# -------------------------------------------Tennis Data--------------------------------------------------------------
+# -------------------------------------------Tennis Data----------------------------------------------------------------
 #     target = pd.read_csv("tennis.csv",
 #                          names=['outlook', 'temp', 'humidity', 'windy', 'play'],
 #                          skipinitialspace=True, skiprows=[0], index_col=False)
@@ -121,18 +118,12 @@ def prepareData():
     return target
 #Make a prediction for (size = Large; occupied = Moderate; price = Cheap; music = Loud; location = City-Center; VIP = No; favorite beer = No).
 
-#-----------------------------------------------------------------------------------------------------------------------
+#---------------------------------returns the attribute with highest information gain-----------------------------------
 
 def findRootNode(target, labels):
-    # branch_values = seperateBranchesOfAttribute(target, 'Size')
     initialEntropies = [0]*len(target.columns)
     for index, column in enumerate(target):
        initialEntropies[index] = entropy(target[column], labels)
-    # print("printing entropy")
-    # print(min(initialEntropies))
-    # if(min(initialEntropies)==0):
-    #     return -1
-    # else:
     return initialEntropies.index(min(initialEntropies))
 
 #----------------------------------ID3 Algorithm -----------------------------------------------------------------------
@@ -172,20 +163,12 @@ def id3(examples, classification_attribute ,attributes):
            decisionTree.label = 'no'
        return decisionTree
    else:
-       #print("searching for best attribute")
        example = examples.drop(labels='Enjoy', axis=1)
        best_attribute = findRootNode(example, classification_attribute)
+       # assign best_attribute to root node
        decisionTree.label = [example.columns[best_attribute]]
-       # printTree(decisionTree)
-       # if entropy(example[example.columns[best_attribute]], classification_attribute) == 0:
-       #     print("Terminating at")
-       #     print(example.columns[best_attribute])
-       #     return 0
-       #assign best_attribute to root node
-       # print(best_attribute)
        branch_examples = seperateBranchesOfAttribute(examples, example.columns[best_attribute])
-       # print(branch_examples)
-       #for each value in best_attribute: add branch below root node for the value
+       # if branch_examples is empty : add leaf node with most popular label
        if not branch_examples:
            if posCounter > negCounter:
                decisionTree.label = 'yes'
@@ -194,15 +177,12 @@ def id3(examples, classification_attribute ,attributes):
            else:
                decisionTree.label = 'no'
                return decisionTree
-       #if branch_examples is empty : add leaf npde with most popular label
-        #else subtree id3(branch_examples, classification_attribute, attributes-best attribute)
+       # for each value in best_attribute: add branch below root node for the value
        for branch in branch_examples:
            label = branch_examples[branch]['Enjoy']
+           #recurse
            retVal = id3(branch_examples[branch], label, branch_examples[branch].columns)
            decisionTree.children.append(retVal)
-           # if(retVal==-1):
-               # print("Terminating at")
-               # print(inverseKeys[example.columns[best_attribute]][branch])
    return decisionTree
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -211,6 +191,7 @@ class DecisionTree(object):
     def __init__(self):
         self.label = None
         self.children = []
+
 # ---------------------------------print the decision tree - level order traversal--------------------------------------
 
 def printTree(tree):
@@ -223,18 +204,32 @@ def printTree(tree):
     node = None
     level = 0  # current level
     nodeCount = 0 # number of nodes dequeued in current level
+    attributenames = ''
     while (len(queue) > 0):
         node = queue.popleft()
         for child in node.children:
             queue.append(child)
         count[level+1] = count[level+1]+len(node.children)
-        print (node.label,end=" ")
+        nodeLabel = str(node.label)
+        nodeLabel = nodeLabel.strip('[]\'')
+        print(nodeLabel, end=" ")
+        if nodeLabel != 'yes':
+            if nodeLabel != 'no':
+                dict = inverseKeys[nodeLabel]
+                attributenames += '[ '
+                for vals in range(len(originalData[nodeLabel].unique())):
+                    # attributenames += str(vals)
+                    # attributenames += '-'
+                    attributenames = attributenames + str(dict[vals]) + " "
+                attributenames += ']'
         nodeCount += 1
         if (nodeCount == count[level]):
             nodeCount = 0
             level += 1
             count.append(0)
-            print("\n")
+            print("")
+            print(attributenames)
+            attributenames = ""
 
 # --------------------------------------------------------------------------------------------------------------------
 
@@ -254,28 +249,23 @@ def printTree(tree):
 #
 #
 
-#---------------------------------------------------------------------------------------------------------------------
-#main method
+#-------------------------------main method-----------------------------------------------------------------------------
 
 target = prepareData()
 global originalData
 originalData = target
 labels = target['Enjoy']
-#target = target.drop(labels='play', axis=1)
-# global decisionTree
-# decisionTree = DecisionTree()
+print("")
+print("The values not in square brackets are the nodes of the tree, where as the values in the square brackets are values of the branches of the nodes")
+print("")
 id3(target, labels, target.columns)
 printTree(id3(target, labels, target.columns))
-# indexOfMinAttribute = findRootNode(target, labels)
-# branches = seperateBranchesOfAttribute(originalData, target.columns[indexOfMinAttribute])
-# plays = branches[0].play
-# branches[0] = branches[0].drop(labels='play', axis=1)
-# print(findRootNode(branches[0], plays))
 
 
 
 
 
+#(size = Large; occupied = Moderate; price = Cheap; music = Loud; location = City-Center; VIP = No; favorite beer = No).
 
 
 
