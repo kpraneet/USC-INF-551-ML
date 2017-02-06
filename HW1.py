@@ -1,3 +1,4 @@
+#----------------------------------Decision tree using scikit learn---------------------------------------
 import pandas as pd
 target = pd.read_csv("dt-data.txt",
 names=['Size', 'Occupied', 'Price', 'Music', 'Location', 'VIP', 'Favorite Beer', 'Enjoy'], skipinitialspace=True,
@@ -18,23 +19,18 @@ target['Favorite Beer'] = label_processor.fit_transform(target['Favorite Beer'])
 lables = target['Enjoy']
 target = target.drop(labels='Enjoy', axis=1)
 
+#print(target)
+#print(lables)
 from sklearn import tree
-clf = tree.DecisionTreeClassifier()
+clf = tree.DecisionTreeClassifier(criterion = "entropy")
 clf = clf.fit(target, lables)
+print(clf.predict([[0,2,0,0,0,0,0]]))
+#(size = Large; occupied = Moderate; price = Cheap; music = Loud; location = City-Center; VIP = No; favorite beer = No).
 
-# expected = target
-# predicted = clf.predict(target)
-# out = []
-
-# Test with training data
-# print("Test case outputs")
-# for i in range(0, len(predicted)):
-#     if predicted[i] == 0:
-#         out.insert(i,'No')
-#     else:
-#         out.insert(i,'Yes')
-#     print(out[i])
-
+# import pydotplus
+# dot_data = tree.export_graphviz(clf, out_file=None, feature_names = target.columns, class_names=None)
+# graph = pydotplus.graph_from_dot_data(dot_data)
+# graph.write_pdf("clf.pdf")
 
 
 

@@ -1,7 +1,6 @@
 import pandas as pd
 import math
 #-----------------------------calculates entropy of given attribute-----------------------------------------------------
-#calculates entropy of given attribute
 def entropy(example, classification_attribute):
     attributePositiveCounter= {}
     attributeNegativeCounter = {}
@@ -185,7 +184,7 @@ def id3(examples, classification_attribute ,attributes):
            decisionTree.children.append(retVal)
    return decisionTree
 
-# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------class of decision tree structure-------------------------------------------------
 
 class DecisionTree(object):
     def __init__(self):
@@ -216,12 +215,12 @@ def printTree(tree):
         if nodeLabel != 'yes':
             if nodeLabel != 'no':
                 dict = inverseKeys[nodeLabel]
-                attributenames += '[ '
-                for vals in range(len(originalData[nodeLabel].unique())):
+                # attributenames += '[ '
+                # for vals in range(len(originalData[nodeLabel].unique())):
                     # attributenames += str(vals)
                     # attributenames += '-'
-                    attributenames = attributenames + str(dict[vals]) + " "
-                attributenames += ']'
+                #     attributenames = attributenames + str(dict[vals]) + " "
+                # attributenames += ']'
         nodeCount += 1
         if (nodeCount == count[level]):
             nodeCount = 0
@@ -231,23 +230,6 @@ def printTree(tree):
             print(attributenames)
             attributenames = ""
 
-# --------------------------------------------------------------------------------------------------------------------
-
-# def predict():
-#
-#     (size = Large;
-#     occupied = Moderate;
-#     price = Cheap;
-#     music = Loud;
-#     location = City - Center;
-#     VIP = No;
-#     favorite
-#     beer = No).
-
-# get root node label
-# get value of the data for that label
-#
-#
 
 #-------------------------------main method-----------------------------------------------------------------------------
 
@@ -255,9 +237,9 @@ target = prepareData()
 global originalData
 originalData = target
 labels = target['Enjoy']
-print("")
-print("The values not in square brackets are the nodes of the tree, where as the values in the square brackets are values of the branches of the nodes")
-print("")
+# print("")
+# print("The values not in square brackets are the nodes of the tree, where as the values in the square brackets are values of the branches of the nodes")
+# print("")
 id3(target, labels, target.columns)
 printTree(id3(target, labels, target.columns))
 
