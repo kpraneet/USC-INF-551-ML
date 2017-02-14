@@ -55,7 +55,9 @@
 # have that centroid's label. Important: If a centroid is empty (no points have
 # that centroid's label) you should randomly re-initialize it.
 
+#------------------------------------------ CONSTANTS ------------------------------------------------------------------
 
+MAX_ITERATIONS = 1000
 #------------------------------------------ get random centroids -------------------------------------------------------
 
 def get_random_centroids(data_points, num_clusters):
@@ -74,7 +76,7 @@ def shouldStop(oldCentroids, centroids, iterations):
         return True
     return oldCentroids == centroids
 
-
+#------------------------------------------ condition to terminate k-means ---------------------------------------------
 
 
 
