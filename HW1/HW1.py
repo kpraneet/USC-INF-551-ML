@@ -27,10 +27,10 @@ clf = clf.fit(target, lables)
 print(clf.predict([[0,2,0,0,0,0,0]]))
 #(size = Large; occupied = Moderate; price = Cheap; music = Loud; location = City-Center; VIP = No; favorite beer = No).
 
-# import pydotplus
-# dot_data = tree.export_graphviz(clf, out_file=None, feature_names = target.columns, class_names=None)
-# graph = pydotplus.graph_from_dot_data(dot_data)
-# graph.write_pdf("clf.pdf")
+import pydotplus
+dot_data = tree.export_graphviz(clf, out_file=None, feature_names = target.columns, class_names=None)
+graph = pydotplus.graph_from_dot_data(dot_data)
+graph.write_pdf("clf.pdf")
 
 
 
