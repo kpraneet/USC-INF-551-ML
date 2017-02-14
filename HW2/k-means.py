@@ -60,18 +60,19 @@
 
 def get_random_centroids(data_points, num_clusters):
     import random
-    list_of_centriods = [0]*num_clusters
+    # data_points = [{'x':1, 'y':2},{'x':3, 'y':4},{'x':5, 'y':6}]
+    list_of_centriods = []
     for i in range(num_clusters):
         list_of_centriods.append(random.choice(data_points))
+    # print(list_of_centriods)
     return list_of_centriods
 
+#------------------------------------------ condition to terminate k-means ---------------------------------------------
 
-
-
-
-
-
-
+def shouldStop(oldCentroids, centroids, iterations):
+    if iterations > MAX_ITERATIONS:
+        return True
+    return oldCentroids == centroids
 
 
 
