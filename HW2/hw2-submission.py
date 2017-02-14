@@ -1,11 +1,13 @@
 import random
 
 k = 3
-
+#changing
 def getrandomcentrioids(listpoints,k):
+    centroidlist = []
     for x in range(k):
         val = random.choice(listpoints)
-        print(val)
+        centroidlist.append(val)
+    return centroidlist
 
 def main():
     listpoints = []
@@ -20,6 +22,7 @@ def main():
     # for x in listpoints:
     #     print(x)
     initialcentroids = getrandomcentrioids(listpoints,k)
+    print(initialcentroids)
 
 if __name__ == '__main__':
     main()
