@@ -83,7 +83,7 @@ def shouldStop(oldCentroids, centroids, iterations):
 # For each element in the dataset, chose the closest centroid.
 # Make that centroid the element's label.
 
-def getLabels(data_set, centroids):
+def get_labels(data_set, centroids):
     import sys
     import math
     updated_data_set = []
@@ -102,13 +102,7 @@ def getLabels(data_set, centroids):
         updated_data_set.append({'x':x, 'y':y,'c':c})
     return updated_data_set
 
-
-
-
-
-
-
-
+#------------------------------------------ the main method ------------------------------------------------------------
 
 
 
