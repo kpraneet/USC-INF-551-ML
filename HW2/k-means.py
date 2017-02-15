@@ -30,9 +30,7 @@
 
 # Function: Should Stop
 # -------------
-# Returns True or False if k-means is done. K-means terminates either
-# because it has run a maximum number of iterations OR the centroids
-# stop changing.
+
 # def shouldStop(oldCentroids, centroids, iterations):
 #     if iterations > MAX_ITERATIONS: return True
 #     return oldCentroids == centroids
@@ -55,7 +53,9 @@
 # have that centroid's label. Important: If a centroid is empty (no points have
 # that centroid's label) you should randomly re-initialize it.
 
+#------------------------------------------ CONSTANTS ------------------------------------------------------------------
 
+MAX_ITERATIONS = 1000
 #------------------------------------------ get random centroids -------------------------------------------------------
 
 def get_random_centroids(data_points, num_clusters):
@@ -69,13 +69,38 @@ def get_random_centroids(data_points, num_clusters):
 
 #------------------------------------------ condition to terminate k-means ---------------------------------------------
 
+# Returns True or False if k-means is done. K-means terminates either because it has run a maximum number of iterations
+# OR the centroids stop changing.
+
 def shouldStop(oldCentroids, centroids, iterations):
     if iterations > MAX_ITERATIONS:
         return True
     return oldCentroids == centroids
 
+#------------------------------------------ condition to terminate k-means ---------------------------------------------
 
+# Returns a label for each piece of data in the dataset.
+# For each element in the dataset, chose the closest centroid.
+# Make that centroid the element's label.
 
+def getLabels(data_set, centroids):
+    import sys
+    import math
+    updated_data_set = []
+    for data_point in data_set:
+        x = data_point[x]
+        y = data_point[y]
+        c = data_point[c]
+        min_dist = sys.float_info.max
+        for centroid in centroids:
+            x_c = centroid[x]
+            y_c = centroid[y]
+            dist = math.hypot(x - x_c, y - y_c)
+            if dist < min_dist:
+                min_dist = dist
+                c = centroid
+        updated_data_set.append({'x':x, 'y':y,'c':c})
+    return updated_data_set
 
 
 
