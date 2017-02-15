@@ -90,7 +90,8 @@ def get_labels(data_set, centroids):
     for data_point in data_set:
         x = data_point[x]
         y = data_point[y]
-        c = data_point[c]
+        cx = data_point[lx]
+        cy = data_point[ly]
         min_dist = sys.float_info.max
         for centroid in centroids:
             x_c = centroid[x]
@@ -98,8 +99,9 @@ def get_labels(data_set, centroids):
             dist = math.hypot(x - x_c, y - y_c)
             if dist < min_dist:
                 min_dist = dist
-                c = centroid
-        updated_data_set.append({'x':x, 'y':y,'c':c})
+                cx = x_c
+                cy = y_c
+        updated_data_set.append({'x':x, 'y':y, 'lx':cx, 'ly':cy})
     return updated_data_set
 
 #------------------------------------------ the main method ------------------------------------------------------------
