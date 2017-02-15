@@ -1,7 +1,8 @@
 import random
 
 k = 3
-#changing
+maxiterations = 1000
+
 def getrandomcentrioids(listpoints,k):
     centroidlist = []
     for x in range(k):
@@ -9,8 +10,18 @@ def getrandomcentrioids(listpoints,k):
         centroidlist.append(val)
     return centroidlist
 
+def stopcheck(oldcentroids,updatedcentroids,iterations):
+    if iterations > maxiterations:
+        return True
+    return oldcentroids == updatedcentroids
+
+def pointlabel(listpoints,centroids):
+    print('Blah')
+
 def main():
     listpoints = []
+    iterations = 0
+    oldcentroids = None
     inputfile = open("clusters.txt","r")
     filecontent = inputfile.read().splitlines()
     for val in filecontent:
@@ -19,10 +30,12 @@ def main():
         datadict['x'] = float(indval[0])
         datadict['y'] = float(indval[1])
         listpoints.append(datadict)
-    # for x in listpoints:
-    #     print(x)
-    initialcentroids = getrandomcentrioids(listpoints,k)
-    print(initialcentroids)
+    centroids = getrandomcentrioids(listpoints,k)
+    while not stopcheck(oldcentroids,centroids,iterations):
+        oldcentroids = centroids
+        iterations += 1
+        labelpoint = pointlabel(listpoints,centroids)
+
 
 if __name__ == '__main__':
     main()
