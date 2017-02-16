@@ -107,9 +107,27 @@ def get_labels(data_set, centroids):
 #------------------------------------------ the main method ------------------------------------------------------------
 
 
+def calculate_centroid(list):
+    import numpy as np
+    a = np.array(list)
+    return np.mean(a, axis=0)
 
+def seperate_coordinates(input_list):
+    list = []
+    for element in input_list:
+        current_element = []
+        current_element.append(element[x])
+        current_element.append(element[y])
+        list.append(current_element)
+    return list
 
-
-
-
-
+def plot_values():
+    import pylab as pl
+    # Make an array of x values
+    x = [1, 2, 3, 4, 5]
+    # Make an array of y values for each x value
+    y = [1, 4, 9, 16, 25]
+    # use pylab to plot x and y as red circles
+    pl.plot(x, y, ’s’)
+    # show the plot on the screen
+    pl.show()

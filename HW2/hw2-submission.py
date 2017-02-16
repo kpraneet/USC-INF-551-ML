@@ -2,6 +2,7 @@ import random
 import math
 import numpy as np
 import pylab as pl
+import sys
 
 k = 3
 maxiterations = 1000000
@@ -22,7 +23,7 @@ def pointlabel(listpoints,centroids):
     for pointvar in listpoints:
         x = pointvar['x']
         y = pointvar['y']
-        mindist = 999999
+        mindist = sys.float_info.max
         for centroidvar in centroids:
             cx = centroidvar['x']
             cy = centroidvar['y']
@@ -131,8 +132,8 @@ def main():
         indval = val.split(',')
         datadict['x'] = float(indval[0])
         datadict['y'] = float(indval[1])
-        datadict['lx'] = -999999
-        datadict['ly'] = -999999
+        datadict['lx'] = sys.float_info.min
+        datadict['ly'] = sys.float_info.min
         listpoints.append(datadict)
     centroids = getrandomcentrioids(listpoints,k)
     while not stopcheck(oldcentroids,centroids,iterations):
