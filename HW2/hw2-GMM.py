@@ -63,6 +63,7 @@ def weightedcovar(listpoints,riclist):
         tmplist.append(var['x'])
         tmplist.append(var['y'])
         finallist.append(tmplist)
+    # print(finallist)
     x = np.array(finallist).T
     covar = np.cov(x,aweights=riclist)
     return (covar)
