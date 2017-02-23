@@ -3,20 +3,21 @@
 import random
 import numpy as np
 from scipy.stats import multivariate_normal
+import copy
 
 k = 3
-maxiterations = 100
+maxiterations = 10000
 
-def stopcheck(clusters,oldclusters):
-    # Write updated logic for convergence
-    newmean = []
-    oldmean = []
-    for var in clusters:
-        newmean.append(var['mean'])
-    if oldclusters:
-        for var in oldclusters:
-            oldmean.append(var['mean'])
-    return newmean == oldmean
+def stopcheck(oldlistpoints,listpoints,iterations):
+    if iterations > maxiterations:return False
+    oldcheckvar = -999999
+    checkvar = format(listpoints[0]['ric1'],'.6f')
+    if oldlistpoints != None:
+        oldcheckvar = format(oldlistpoints[0]['ric1'],'.6f')
+    if checkvar != oldcheckvar:
+        return True
+    else:
+        return False
 
 def weightedmean(listpoints):
     mean1 = []
@@ -56,7 +57,6 @@ def weightedmean(listpoints):
     return mean1,mean2,mean3
 
 def weightedcovar(listpoints,riclist):
-    #Check logic correctness
     finallist = []
     for var in listpoints:
         tmplist = []
@@ -189,6 +189,7 @@ def splitcontent(listpoints):
 def main():
     listpoints = []
     iterations = 0
+    oldlistpoints= None
     inputfile = open("clusters.txt", "r")
     filecontent = inputfile.read().splitlines()
     for val in filecontent:
@@ -203,9 +204,8 @@ def main():
     listpoints = ricinitialization(listpoints)
     clusters = splitcontent(listpoints)
     listpoints = ric(clusters, listpoints)
-    while 1:
-        if iterations > maxiterations:
-            break
+    while stopcheck(oldlistpoints,listpoints,iterations):
+        oldlistpoints = copy.deepcopy(listpoints)
         iterations += 1
         clusters = newclusters(listpoints)
         listpoints = ric(clusters,listpoints)
