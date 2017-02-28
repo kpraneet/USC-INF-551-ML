@@ -91,7 +91,6 @@ def main():
     content = newinputfile.read().splitlines()
     for val in content:
         labellist.append(val)
-    print(labellist)
     pl.plot(xlist,ylist,'ro')
     for x in range(0,10):
         pl.text(xlist[x],ylist[x],labellist[x])
