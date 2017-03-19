@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-=======
-import matplotlib.pyplot as plt
->>>>>>> Stashed changes
 import numpy as np
 
 def main():
