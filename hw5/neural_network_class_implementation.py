@@ -7,10 +7,6 @@ from scipy import special
 import time
 
 
-inweight = [[random.uniform(-0.1, 0.1) for x in range(960)] for y in range(100)]
-outweight = [random.uniform(-0.1, 0.1) for z in range(100)]
-inputnodes = [0 for i in range(960)]
-hiddennodes = [0 for j in range(100)]
 predictioncount = 0
 
 
@@ -24,46 +20,61 @@ def dersig(x):
     return checkval
 
 
-def feedforwardbackpropogation(label):
-    global inputnodes
-    global hiddennodes
-    global inweight
-    global outweight
+class hiddenlayernode:
+    def __init__(self, val, act):
+        self.nodevalue = val
+        self.finalval = act
+        self.outweight = random.uniform(-0.1, 0.1)
+
+
+class inputlayernode:
+    def __init__(self, lst):
+        self.val = lst
+        self.weight = [random.uniform(-0.1, 0.1) for x in range(100)]
+
+
+class opnode:
+    def __init__(self, val, act):
+        self.nodevalue = val
+        self.finalval = act
+
+
+def feedforwardbackpropogation(inputnodes, hiddennodes, label):
     eta = 0.1
-    opval = 0
     hiddendelta = []
-    inputnodes = np.array(inputnodes)
-    inweight = np.array(inweight)
     for i in range(100):
         tmp = 0
-        tmp += np.dot(inputnodes, inweight[i])
-        hiddennodes[i] = tmp
-    for x in range(100):
-        opval += (sigmoid(hiddennodes[x]) * outweight[x])
-    errval = label - sigmoid(opval)
-    delta = dersig(opval) * errval
-    for x in range(100):
-        temp = (delta * outweight[x] * dersig(hiddennodes[x]))
-        hiddendelta.append(temp)
-        outweight[x] += (eta * sigmoid(hiddennodes[x]) * delta)
-    for y in range(100):
-        val = eta * hiddendelta[y]
-        newlst = np.dot(inputnodes, val)
-        inweight[y] = inweight[y] + newlst
-
-
-def prediction(label):
-    global inputnodes
-    global hiddennodes
-    global predictioncount
-    global inweight
+        for j in inputnodes:
+            tmp += (j.val*j.weight[i])
+        hiddennodes[i].nodevalue = tmp
+        hiddennodes[i].finalval = sigmoid(tmp)
     opval = 0
+    for x in hiddennodes:
+        opval += (x.finalval*x.outweight)
+    outputnode = opnode(opval, sigmoid(opval))
+    errval = label - sigmoid(opval)
+    delta = dersig(outputnode.nodevalue) * errval
+    for x in hiddennodes:
+        temp = (delta * x.outweight * dersig(x.nodevalue))
+        hiddendelta.append(temp)
+        x.outweight += (eta * x.finalval * delta)
+    for x in inputnodes:
+        for y in range(100):
+            x.weight[y] += (eta * x.val * hiddendelta[y])
+    return inputnodes, hiddennodes
+
+
+def prediction(inputnodes, hiddennodes, label):
+    global predictioncount
     for i in range(100):
         tmp = 0
-        tmp += np.dot(inputnodes, inweight[i])
-        hiddennodes[i] = tmp
-    for x in range(100):
-        opval += (sigmoid(hiddennodes[x]) * outweight[x])
+        for j in inputnodes:
+            tmp += (j.val * j.weight[i])
+        hiddennodes[i].nodevalue = tmp
+        hiddennodes[i].finalval = sigmoid(tmp)
+    opval = 0
+    for x in hiddennodes:
+        opval += (x.finalval * x.outweight)
     y = sigmoid(opval)
     if y >= 0.5 and label == 1:
         predictioncount += 1
@@ -73,19 +84,18 @@ def prediction(label):
         print('Correct classification')
     else:
         print('Incorrect classification')
+    return inputnodes, hiddennodes
 
 
 def main():
     localtime = time.asctime(time.localtime(time.time()))
     print(localtime)
     print('\n')
-    global inputnodes
-    global hiddennodes
-    global inweight
     global predictioncount
+    predictionfilecount = 0
+    inputnodes = []
+    hiddennodes = []
     epochs = 1000
-    filecount = 0
-    count = 0
     inputfile = open("downgesture_train.list", "r")
     filecontent = inputfile.read().splitlines()
     val = filecontent[0]
@@ -97,14 +107,15 @@ def main():
     lst = np.array(img)
     for var in lst:
         for x in var:
-            inputnodes[count] = int(x)
-            count += 1
+            tmpvar = inputlayernode(int(x))
+            inputnodes.append(tmpvar)
     for i in range(100):
         tmp = 0
-        for j in range(960):
-            tmp += (inputnodes[j] * inweight[i][j])
-        hiddennodes[i] = tmp
-    feedforwardbackpropogation(label)
+        for j in inputnodes:
+            tmp += (j.val*j.weight[i])
+        hiddentmp = hiddenlayernode(tmp, sigmoid(tmp))
+        hiddennodes.append(hiddentmp)
+    inputnodes, hiddennodes = feedforwardbackpropogation(inputnodes, hiddennodes, label)
     imglst = []
     for val in range(0, len(filecontent)):
         img = Image.open(filecontent[val])
@@ -120,31 +131,32 @@ def main():
             count = 0
             for var in imglst[count]:
                 for x in var:
-                    inputnodes[count] = int(x)
+                    inputnodes[count].val = int(x)
                     count += 1
-            feedforwardbackpropogation(label)
+            inputnodes, hiddennodes = feedforwardbackpropogation(inputnodes, hiddennodes, label)
+    print('\n')
     # Prediction
     inputfile = open("downgesture_test.list", "r")
     filecontent = inputfile.read().splitlines()
     for val in range(0, len(filecontent)):
-        filecount += 1
+        predictionfilecount += 1
         if 'down' in filecontent[val]:
             label = 1
         else:
             label = 0
-        print('File name: ',filecontent[val],'Label: ',label)
+        print('File name: ',filecontent[val], 'Label: ',label)
         img = Image.open(filecontent[val])
         lst = np.array(img)
         count = 0
         for var in lst:
             for x in var:
-                inputnodes[count] = int(x)
+                inputnodes[count].val = int(x)
                 count += 1
-        prediction(label)
+        inputnodes, hiddennodes = prediction(inputnodes, hiddennodes, label)
     print('\n')
     print('Correctly classified: ',predictioncount)
-    print('Total files: ',filecount)
-    print('Accuracy: ',(predictioncount / filecount) * 100)
+    print('Total files: ',predictionfilecount)
+    print('Accuracy: ',(predictioncount / predictionfilecount) * 100)
     localtime = time.asctime(time.localtime(time.time()))
     print('\n')
     print(localtime)
