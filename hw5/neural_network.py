@@ -82,7 +82,8 @@ def prediction(inputnodes, hiddennodes, label):
 
 
 def main():
-    time.strftime("%Y-%m-%d %H:%M")
+    localtime = time.asctime(time.localtime(time.time()))
+    print(localtime)
     global predictioncount
     predictionfilecount = 0
     inputnodes = []
@@ -151,7 +152,8 @@ def main():
                 count += 1
         inputnodes, hiddennodes = prediction(inputnodes, hiddennodes, label)
     print(predictioncount, predictionfilecount, (predictioncount / predictionfilecount) * 100)
-    time.strftime("%Y-%m-%d %H:%M")
+    localtime = time.asctime(time.localtime(time.time()))
+    print(localtime)
 
 
 if __name__ == '__main__':
