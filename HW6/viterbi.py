@@ -75,46 +75,34 @@ def viterbi(observations, states_array, emission_probability, transition_probabi
     for state_count in range(len(states_array)):
         viterbi_probability_matrix[0][state_count] = float(1/Decimal(87)) * emission_probability[0][state_count]
     for observation_index in range(1, len(observations)):
-        for current_state_index, st in enumerate(states_array):
-            max_tr_prob = 0
-            minx = 10
-            miny = 10
-            for previous_state_index, prev_st in enumerate(states_array):
-                if viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
-                        emission_probability[observation_index - 1][previous_state_index] > max_tr_prob:
-                    max_tr_prob = viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
-                                  emission_probability[observation_index - 1][previous_state_index]
-            for previous_state_index,prev_st in enumerate(states_array):
-                if viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
-                        emission_probability[observation_index-1][previous_state_index] == max_tr_prob:
-                    if prev_st[0] < minx:
-                        minx = prev_st[0]
-                        miny = prev_st[1]
-                        viterbi_probability_matrix[observation_index][current_state_index] = max_tr_prob
-                        viterbi_previous_state_matrix[observation_index][current_state_index] = previous_state_index
-                    elif prev_st[0] == minx and prev_st[1] < miny:
-                        miny = prev_st[1]
-                        viterbi_probability_matrix[observation_index][current_state_index] = max_tr_prob
-                        viterbi_previous_state_matrix[observation_index][current_state_index] = previous_state_index
+        for current_state_index in range(len(states_array)):
+            maximum_probability = 0
+            for previous_state_index in range(len(states_array)):
+                if viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * emission_probability[observation_index - 1][previous_state_index] > maximum_probability:
+                    maximum_probability = viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * emission_probability[observation_index - 1][previous_state_index]
+                    viterbi_probability_matrix[observation_index][current_state_index] =  maximum_probability
+                    viterbi_previous_state_matrix[observation_index][current_state_index] = previous_state_index
 
     # tie is automatically taken care of because states_array is indexed in such a way that x and y is in ascending order
-    max = -1.0
-    max_state = ()
-    opt = []
-    previous = 0
-    for c4,val in enumerate(viterbi_probability_matrix[-1]):
-        if val > max:
-            max = val
-            max_state = states_array[c4]
-            previous = c4
 
-    opt.append(max_state)
+    temporary_maximum_probability = -1.0
+    maximum_state = ()
+    final_optimal_path_of_robot = []
+    previous_state_index = 0
+    for state_index,probability_value in enumerate(viterbi_probability_matrix[-1]):
+        if probability_value > temporary_maximum_probability:
+            temporary_maximum_probability = probability_value
+            maximum_state = states_array[state_index]
+            previous_state_index = state_index
+
+    final_optimal_path_of_robot.append(maximum_state)
 
     for t in range(len(viterbi_probability_matrix) - 1, 0, -1):
-        previous = viterbi_previous_state_matrix[t][previous]
-        opt.insert(0,states_array[previous])
+        previous_state_index = viterbi_previous_state_matrix[t][previous_state_index]
+        final_optimal_path_of_robot.insert(0,states_array[previous_state_index])
 
-    print(opt)
+    print ("predicted optimal state of robot from 0th observation to 11th observation")
+    print(final_optimal_path_of_robot)
 
 #---------------------------------------------------------main function-------------------------------------------------
 
