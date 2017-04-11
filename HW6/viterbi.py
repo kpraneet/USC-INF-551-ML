@@ -6,30 +6,27 @@ from decimal import *
 #-------------------------------------calculates the distance from all the towers---------------------------------------
 
 def distance_from_towers(x,y):
-    coords = [(x, y), (0,0), (0,9), (9,0), (9,9)]
-    distance_array =  np.array(distance.cdist(coords, coords, 'euclidean'))[0]
+    coordinates = [(x, y), (0,0), (0,9), (9,0), (9,9)]
+    distance_array =  np.array(distance.cdist(coordinates, coordinates, 'euclidean'))[0]
     distance_array = np.delete(distance_array, 0)
     return distance_array
 
 #------function to prepare the emission probability matrix - given a state what is the probability of observation-------
 
 def prepare_emission_probability(states_array, observations):
-    emission_probability = {}
-    for count,observation in enumerate(observations):
-        temporary_dictionary = {}
-        for state in states_array:
+    emission_probability = np.zeros((len(observations), len(states_array)))
+    for observation_index,observation in enumerate(observations):
+        for state_index,state in enumerate(states_array):
             distance_array = distance_from_towers(state[0], state[1])
             if (observation.item(0) >= distance_array[0]*0.7 and observation.item(0) <= distance_array[0]*1.3) and (observation.item(1) >= distance_array[1]*0.7 and observation.item(1) <= distance_array[1]*1.3) and (observation.item(2) >= distance_array[2]*0.7 and observation.item(2) <= distance_array[2]*1.3) and (observation.item(3) >= distance_array[3]*0.7 and observation.item(3) <= distance_array[3]*1.3):
-                temporary_dictionary[state] = float(1/Decimal(7)) #hard coded - there can possibly be only 7 valid observations for the distances to towers including the error
-        emission_probability[count] = temporary_dictionary
+                emission_probability[observation_index][state_index] = float(1/Decimal(7)) #hard coded - there can possibly be only 7 valid observations for the distances to towers including the error
     return emission_probability
 
 #---function to prepare the transition probability matrix - the probability of transition from one state to another-----
 
 def prepare_transition_probability(states_array):
-    transition_probability = {}
-    count = 0
-    for state in states_array:
+    transition_probability = np.zeros((len(states_array), len(states_array)))
+    for index,state in enumerate(states_array):
         count = 0
         if (state[0]+1, state[1]) in states_array:
             count += 1
@@ -40,16 +37,14 @@ def prepare_transition_probability(states_array):
         if (state[0], state[1]-1) in states_array:
             count += 1
         temporary_probability = float(1/Decimal(count))
-        temporary_dictionary = {}
         if (state[0]+1, state[1]) in states_array:
-            temporary_dictionary[(state[0]+1, state[1])] = temporary_probability
+            transition_probability[index][states_array.index((state[0]+1, state[1]))] = temporary_probability
         if (state[0], state[1]+1) in states_array:
-            temporary_dictionary[(state[0], state[1]+1)] = temporary_probability
+            transition_probability[index][states_array.index((state[0], state[1]+1))] = temporary_probability
         if (state[0]-1, state[1]) in states_array:
-            temporary_dictionary[(state[0]-1, state[1])] = temporary_probability
+            transition_probability[index][states_array.index((state[0]-1, state[1]))] = temporary_probability
         if (state[0], state[1]-1) in states_array:
-            temporary_dictionary[(state[0], state[1]-1)] = temporary_probability
-        transition_probability[state] = temporary_dictionary
+            transition_probability[index][states_array.index((state[0], state[1]-1))] = temporary_probability
     return transition_probability
 
 
@@ -74,57 +69,52 @@ def prepare_data():
 
 def viterbi(observations, states_array, emission_probability, transition_probability):
     V = [{}]
-    for st in states_array:
-        V[0][st] = {"probability": float(1/Decimal(87)) * emission_probability[0].get(st, 0), "previous" : None}
-    for t in range(1, len(observations)):
-        V.append({})
-        for st in states_array:
+    viterbi_probability_matrix = np.zeros((len(observations), len(states_array)))
+    viterbi_previous_state_matrix = np.zeros((len(observations), len(states_array)))
+    viterbi_previous_state_matrix = viterbi_previous_state_matrix.astype(int)
+    for state_count in range(len(states_array)):
+        viterbi_probability_matrix[0][state_count] = float(1/Decimal(87)) * emission_probability[0][state_count]
+    for observation_index in range(1, len(observations)):
+        for current_state_index, st in enumerate(states_array):
             max_tr_prob = 0
             minx = 10
             miny = 10
-            for prev_st in states_array:
-                if V[t - 1][prev_st]["probability"] * transition_probability.get(prev_st, 0).get(st, 0)*emission_probability[t].get(st, 0) > max_tr_prob:
-                    max_tr_prob = V[t - 1][prev_st]["probability"] * transition_probability.get(prev_st, 0).get(st, 0)* emission_probability[t].get(st, 0)
-            for prev_st in states_array:
-                if V[t - 1][prev_st]["probability"] * transition_probability.get(prev_st, 0).get(st, 0)* emission_probability[t].get(st, 0) == max_tr_prob:
+            for previous_state_index, prev_st in enumerate(states_array):
+                if viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
+                        emission_probability[observation_index - 1][previous_state_index] > max_tr_prob:
+                    max_tr_prob = viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
+                                  emission_probability[observation_index - 1][previous_state_index]
+            for previous_state_index,prev_st in enumerate(states_array):
+                if viterbi_probability_matrix[observation_index - 1][previous_state_index] * transition_probability[current_state_index][previous_state_index] * \
+                        emission_probability[observation_index-1][previous_state_index] == max_tr_prob:
                     if prev_st[0] < minx:
                         minx = prev_st[0]
                         miny = prev_st[1]
-                        V[t][st] = {"probability": max_tr_prob, "previous": prev_st}
+                        viterbi_probability_matrix[observation_index][current_state_index] = max_tr_prob
+                        viterbi_previous_state_matrix[observation_index][current_state_index] = previous_state_index
                     elif prev_st[0] == minx and prev_st[1] < miny:
                         miny = prev_st[1]
-                        V[t][st] = {"probability": max_tr_prob, "previous": prev_st}
+                        viterbi_probability_matrix[observation_index][current_state_index] = max_tr_prob
+                        viterbi_previous_state_matrix[observation_index][current_state_index] = previous_state_index
 
+    # tie is automatically taken care of because states_array is indexed in such a way that x and y is in ascending order
+    max = -1.0
+    max_state = ()
     opt = []
-    max_prob = max(value["probability"] for value in V[-1].values())
-    previous = None
+    previous = 0
+    for c4,val in enumerate(viterbi_probability_matrix[-1]):
+        if val > max:
+            max = val
+            max_state = states_array[c4]
+            previous = c4
 
-    for st, data in V[-1].items():
-        if data["probability"] == max_prob:
-            opt.append(st)
-            previous = st
+    opt.append(max_state)
 
-    final_opt = []
-    min_x = 10
-    min_y = 10
-    min_coordinate = ()
-    #tie breaking0
-    for op in opt:
-        if op[0] < min_x:
-            min_x = op[0]
-            min_y = op[1]
-            min_coordinate = op
-        elif op[0] == min_x and op[1] < min_y:
-            min_y = op[1]
-            min_coordinate = op
+    for t in range(len(viterbi_probability_matrix) - 1, 0, -1):
+        previous = viterbi_previous_state_matrix[t][previous]
+        opt.insert(0,states_array[previous])
 
-    final_opt.append(min_coordinate)
-    for t in range(len(V) - 2, -1, -1):
-        final_opt.insert(0, V[t + 1][previous]["previous"])
-        previous = V[t + 1][previous]["previous"]
-
-    print(final_opt)
-    print ('The steps of states are ' + ' '.join(str(final_opt)) + ' with highest probability of %s' % max_prob)
+    print(opt)
 
 #---------------------------------------------------------main function-------------------------------------------------
 
