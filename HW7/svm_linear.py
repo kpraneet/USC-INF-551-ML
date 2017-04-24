@@ -25,8 +25,6 @@ def prepare_data(data):
     b = matrix(0.0)
     return P, q, G, h, A, b, coordinates, labels
 
-COLORS = ['red', 'blue']
-
 def plot_data_with_labels(coordinates, labels, plot):
     for label_index, label in enumerate(labels):
         if label > 0:
