@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cvxopt import matrix, solvers
 
-
-#---------------------------------function to prepare the data in the required format-----------------------------------
+#-----------------------function to prepare the data in the required format for quadratic solver------------------------
 
 def prepare_data(data):
     coordinates = []
@@ -25,12 +24,12 @@ def prepare_data(data):
     b = matrix(0.0)
     return P, q, G, h, A, b, coordinates, labels
 
-def plot_data_with_labels(coordinates, labels, plot):
-    for label_index, label in enumerate(labels):
-        if label > 0:
-            plot.scatter(coordinates[label_index][0], coordinates[label_index][1], c='r')
-        else:
-            plot.scatter(coordinates[label_index][0], coordinates[label_index][1], c='b')
+#---------------------------------------helper function to plot the data points-----------------------------------------
+
+def plot_data_points(coordinates, labels, plot):
+    plot.scatter(coordinates[:, 0], coordinates[:, 1], c=labels)
+
+#--------------------------------------helper function to plot the seperator line---------------------------------------
 
 def plot_separator(plot, weight, bias):
     slope = -weight[0] / weight[1]
@@ -81,7 +80,8 @@ def main():
     figure, plot = plt.subplots()
     line_equation = plot_separator(plot, weight, bias)
     print("The line equation is :", line_equation)
-    plot_data_with_labels(coordinates, labels, plot)
+    plot_data_points(coordinates, labels, plot)
+
     plt.show()
 
 #--------------------------helper function to indicate to start with main function -------------------------------------
