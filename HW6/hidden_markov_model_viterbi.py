@@ -97,10 +97,10 @@ def prepare_data():
 #------------------------helper function to consider precision only until the 24th decimal place ------------------------
 
 def correct_error(value1, value2):
-     if value1!=0 and value2!=0 and abs(value2-value1) < 10**-24:
+     if value1!=0 and value2!=0 and abs(value2-value1) < 1e-24:
          return 0
      else:
-    return value1 > value2
+        return value1 > value2
 
 #-------Performs viterbi algorithm to determine the best possible hidden state sequence for the given observations------
 
